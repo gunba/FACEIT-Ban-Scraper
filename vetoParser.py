@@ -1,7 +1,6 @@
 import csv
 import os
 
-# AI generated slop to create some arbitrary values for how much a team prefers a certain map.
 def process_veto_data(csv_file, team_name):
     veto_data = []
     with open(csv_file, 'r') as file:
@@ -18,10 +17,9 @@ def process_veto_data(csv_file, team_name):
     }
 
     team_preferences = {map_type: {map_name: 0 for map_name in maps} for map_type, maps in map_types.items()}
+    map_type_decisions = {map_type: 0 for map_type in map_types}
 
-    # Arbitrary weight value to prioritize recent vetoes. A veto will be worth 50% by the 10th match.
     weight = -0.1
-
     for match_data in veto_data:
         current_map_type = None
         map_type_bans = 0
@@ -36,7 +34,8 @@ def process_veto_data(csv_file, team_name):
                             current_map_type = map_type
                             map_type_bans += 1
                             if map_type_bans < len(maps):
-                                team_preferences[map_type][map_name] += (1 - max(weight, 0))
+                                team_preferences[map_type][map_name] -= (1 - max(weight, 0))
+                                map_type_decisions[map_type] += 1
                             break
                 else:
                     if current_map_type:
@@ -47,13 +46,19 @@ def process_veto_data(csv_file, team_name):
             elif 'picked by' in ban_or_pick:
                 map_name, team = ban_or_pick.split(' picked by ')
                 map_name = map_name.split('. ')[1]
-                print(map_name)
                 if team == team_name:
                     for map_type, maps in map_types.items():
                         if map_name in maps:
-                            team_preferences[map_type][map_name] -= (1 - max(weight, 0))
+                            team_preferences[map_type][map_name] += (1 - max(weight, 0))
+                            map_type_decisions[map_type] += 1
                             break
-    
+
+    # Normalize the scores based on the total number of decisions for each map type
+    for map_type, preferences in team_preferences.items():
+        total_decisions = map_type_decisions[map_type]
+        if total_decisions > 0:
+            for map_name in preferences:
+                team_preferences[map_type][map_name] /= total_decisions
 
     return team_preferences
 
@@ -67,12 +72,10 @@ file_path = os.path.join(script_directory, csv_directory, csv_file)
 
 # Example usage
 team_name = 'Team Peps'
-
 team_preferences = process_veto_data(file_path, team_name)
 
 for map_type, preferences in team_preferences.items():
-    print(f"Map Type: {map_type}")
-    for map_name, score in preferences.items():
-        rounded_score = round(score, 1)
-        print(f"  {map_name}: {rounded_score}")
+    sorted_preferences = sorted(preferences.items(), key=lambda x: x[1], reverse=True)
+    preference_string = f"{map_type}: " + " > ".join([f"{map_name} ({round(score * 5, 3)})" for map_name, score in sorted_preferences])
+    print(preference_string)
     print()
