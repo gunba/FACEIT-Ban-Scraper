@@ -53,7 +53,7 @@ def get_match_links(team_url):
                 initial_height = new_height
 
                 # ? Enough rows loaded for processing, exit 
-                if map_rows > i:
+                if map_rows > i+5:
                     break
 
             WebDriverWait(driver, 10).until(
@@ -93,6 +93,7 @@ def get_match_links(team_url):
 
             # If we've exceeded the map rows even after the return, we have exhausted the list
             if i >= len(map_rows):
+                print('Iterator is greater than maprows')
                 break
 
             # Click on the row
@@ -106,7 +107,7 @@ def get_match_links(team_url):
 
             # Wait for the round buttons to load. I assume there's a cleaner way to do this
             # i.e. Waiting until there is some number of divs under the scoreboard.
-            time.sleep(0.5)  
+            time.sleep(1)  
 
             # Find the div that contains the round buttons
             round_buttons_container = matchroom_scoreboard.find_element(By.XPATH, ".//div[3]/div")
@@ -189,7 +190,7 @@ def get_match_links(team_url):
         driver.quit()
 
 # Example usage
-team_url = "https://www.faceit.com/en/teams/3c56dcad-8041-4214-86bd-ac75db1d610f"
+team_url = "https://www.faceit.com/en/teams/e85cb266-39cc-4840-ac56-c22c942bd093"
 get_match_links(team_url)
 
 # Example output (will be in script dir as a .csv)
