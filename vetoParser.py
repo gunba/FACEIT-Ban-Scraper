@@ -1,6 +1,7 @@
 import csv
 import os
 
+# AI generated slop
 def process_veto_data(csv_file, team_name):
     veto_data = []
     with open(csv_file, 'r') as file:
@@ -23,7 +24,7 @@ def process_veto_data(csv_file, team_name):
     for match_data in veto_data:
         current_map_type = None
         map_type_bans = 0
-        weight += 0.1
+        weight = min(1, weight+0.1)
         for ban_or_pick in match_data:
             if 'banned' in ban_or_pick:
                 team, map_name = ban_or_pick.split(' banned ')
@@ -33,8 +34,9 @@ def process_veto_data(csv_file, team_name):
                         if map_name in maps:
                             current_map_type = map_type
                             map_type_bans += 1
-                            if map_type_bans < len(maps):
-                                team_preferences[map_type][map_name] -= (1 - max(weight, 0))
+                            if map_type_bans < 2:
+                                team_preferences[map_type][map_name] -= (1 - weight)
+                                print(map_name)
                                 map_type_decisions[map_type] += 1
                             break
                 else:
@@ -49,7 +51,7 @@ def process_veto_data(csv_file, team_name):
                 if team == team_name:
                     for map_type, maps in map_types.items():
                         if map_name in maps:
-                            team_preferences[map_type][map_name] += (1 - max(weight, 0))
+                            team_preferences[map_type][map_name] += (1 - weight)
                             map_type_decisions[map_type] += 1
                             break
 
@@ -71,7 +73,7 @@ csv_file = 'processed_rows.csv'
 file_path = os.path.join(script_directory, csv_directory, csv_file)
 
 # Example usage
-team_name = 'Team Peps'
+team_name = 'Twisted Minds'
 team_preferences = process_veto_data(file_path, team_name)
 
 for map_type, preferences in team_preferences.items():

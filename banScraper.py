@@ -190,7 +190,7 @@ def get_match_links(team_url):
         driver.quit()
 
 # Example usage
-team_url = "https://www.faceit.com/en/teams/e85cb266-39cc-4840-ac56-c22c942bd093"
+team_url = "https://www.faceit.com/en/teams/bb5dd404-213c-430f-8d12-8687fc3ff747"
 get_match_links(team_url)
 
 # Example output (will be in script dir as a .csv)
