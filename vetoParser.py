@@ -73,7 +73,7 @@ csv_file = 'processed_rows.csv'
 file_path = os.path.join(script_directory, csv_directory, csv_file)
 
 # Example usage
-team_name = 'Twisted Minds'
+team_name = 'Ex Oblivione'
 team_preferences = process_veto_data(file_path, team_name)
 
 for map_type, preferences in team_preferences.items():
